@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
@@ -28,7 +29,12 @@ const app    = express();
 const server = http.createServer(app);
 const io     = new Server(server);
 
-app.get(['/', '/game'], (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+const frontendPath = path.join(__dirname, 'index.html');
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get(['/', '/game'], (req, res) => {
+    if (fs.existsSync(frontendPath)) return res.sendFile(frontendPath);
+    res.json({ service: 'ludo-backend', message: 'The game frontend is hosted separately.' });
+});
 
 /* the addresses other phones/laptops should type in */
 function lanUrls() {
