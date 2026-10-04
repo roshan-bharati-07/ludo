@@ -27,7 +27,16 @@ const T = process.env.LUDO_FAST ? 0.03 : 1;
 
 const app    = express();
 const server = http.createServer(app);
-const io     = new Server(server);
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'https://candid-gumdrop-eb6cac.netlify.app')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+const io     = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ['GET', 'POST']
+    }
+});
 
 const frontendPath = path.join(__dirname, 'index.html');
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
